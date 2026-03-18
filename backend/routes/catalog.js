@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { v4 as uuidv4 } from "uuid";
 import db from "../db/database.js";
+import { requireAuth } from "./auth.js";
 
 const router = Router();
 
 // GET /api/catalog
-router.get("/", async (req, res) => {
+router.get("/", requireAuth, async (req, res) => {
   try {
     const items = await db("cloth_catalog").orderBy("name");
     res.json({ success: true, data: items });
@@ -13,7 +14,7 @@ router.get("/", async (req, res) => {
 });
 
 // POST /api/catalog
-router.post("/", async (req, res) => {
+router.post("/", requireAuth, async (req, res) => {
   try {
     const { name, default_price } = req.body;
     if (!name) return res.status(400).json({ success: false, error: "Name required" });
@@ -28,14 +29,14 @@ export { router as catalogRouter };
 // Customers Router
 const customersRouter = Router();
 
-customersRouter.get("/", async (req, res) => {
+customersRouter.get("/", requireAuth, async (req, res) => {
   try {
     const customers = await db("customers").orderBy("total_purchases", "desc");
     res.json({ success: true, data: customers });
   } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
 
-customersRouter.get("/search", async (req, res) => {
+customersRouter.get("/search", requireAuth, async (req, res) => {
   try {
     const { q } = req.query;
     const customers = await db("customers")
