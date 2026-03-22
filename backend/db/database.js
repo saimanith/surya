@@ -199,9 +199,16 @@ export async function initDB() {
       t.string("status").defaultTo("pending"); // pending | received | cancelled
       t.string("expected_date");
       t.string("notes");
+      t.string("order_type").defaultTo("new");
+      t.string("bolt_ref");
       t.string("created_at").notNullable();
       t.string("date").notNullable();
     });
+  } else {
+    if (!await db.schema.hasColumn("purchase_orders","order_type"))
+      await db.schema.table("purchase_orders",t=>t.string("order_type").defaultTo("new"));
+    if (!await db.schema.hasColumn("purchase_orders","bolt_ref"))
+      await db.schema.table("purchase_orders",t=>t.string("bolt_ref"));
   }
 
   // ADMIN USERS

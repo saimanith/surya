@@ -31,43 +31,33 @@ export default function Expenditures(){
   const handleStatus=async(id,status)=>{await api.updateExpStatus(id,status);load();};
   const handleDelete=async(id)=>{if(!confirm("Delete this entry?"))return;await api.deleteExpenditure(id);load();};
 
-  // Split lending: outstanding vs returned
-  const lendingItems = items.filter(i=>i.type==="lending");
-  const outstanding = lendingItems.filter(i=>i.status==="pending");
-  const returned = lendingItems.filter(i=>i.status==="returned");
-  const expenses = items.filter(i=>i.type==="expense");
+  // Only show outstanding (pending) lending — not returned
+  const outstanding = items.filter(i=>i.type==="lending"&&i.status==="pending");
 
   return (
     <div className="page">
       <div className="page-header flex-between">
-        <div><div className="page-accent"><span/><span/><span/><span/></div><h1 className="page-title">Expenditures & Lending</h1><p className="page-subtitle">Track expenses and money lent out</p></div>
+        <div>
+          <div className="page-accent"><span/><span/><span/><span/></div>
+          <h1 className="page-title">Expenditures & Lending</h1>
+          <p className="page-subtitle">Track expenses and outstanding loans</p>
+        </div>
         <div className="flex gap-2" style={{alignItems:"flex-end"}}>
           <div><label className="label">Date</label><input type="date" className="input" style={{width:"160px"}} value={date} onChange={e=>setDate(e.target.value)}/></div>
           <button className="btn btn-primary" onClick={()=>setShowForm(!showForm)}>+ Add Entry</button>
         </div>
       </div>
 
-      {/* Summary — clearly separated */}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"1rem",marginBottom:"1.5rem"}}>
-        {/* Expenses card */}
+      {/* Summary — 2 cards only */}
+      <div className="grid-2 mb-2" style={{maxWidth:500}}>
         <div style={{background:"linear-gradient(135deg,#FFF1F2,#FFE4E6)",border:"1.5px solid #FDA4AF",borderRadius:"var(--r)",padding:"1.2rem 1.4rem"}}>
           <div className="stat-label">💸 Total Expenses</div>
           <div style={{fontFamily:"var(--font-display)",fontSize:"1.5rem",fontWeight:800,color:"var(--rose-dk)"}}>{fmt(summary?.total_expense)}</div>
-          <div style={{fontSize:".72rem",color:"var(--rose-dk)",marginTop:".3rem",opacity:.7}}>Money spent on operations</div>
         </div>
-
-        {/* Outstanding lending */}
         <div style={{background:"linear-gradient(135deg,#FFFBEB,#FEF3C7)",border:"1.5px solid #FCD34D",borderRadius:"var(--r)",padding:"1.2rem 1.4rem"}}>
-          <div className="stat-label">⏳ Outstanding Loans</div>
+          <div className="stat-label">⏳ Outstanding Balance</div>
           <div style={{fontFamily:"var(--font-display)",fontSize:"1.5rem",fontWeight:800,color:"var(--amber)"}}>{fmt(summary?.pending_returns)}</div>
-          <div style={{fontSize:".72rem",color:"var(--amber)",marginTop:".3rem",opacity:.8}}>Money owed to you — not yet returned</div>
-        </div>
-
-        {/* Returned — NOT outstanding, just history */}
-        <div style={{background:"linear-gradient(135deg,#F0FDF4,#DCFCE7)",border:"1.5px solid #86EFAC",borderRadius:"var(--r)",padding:"1.2rem 1.4rem"}}>
-          <div className="stat-label">✅ Loans Returned</div>
-          <div style={{fontFamily:"var(--font-display)",fontSize:"1.5rem",fontWeight:800,color:"var(--jade)"}}>{fmt(returned.reduce((s,i)=>s+i.amount,0))}</div>
-          <div style={{fontSize:".72rem",color:"var(--jade)",marginTop:".3rem",opacity:.8}}>Fully settled — no balance remaining</div>
+          <div style={{fontSize:".7rem",color:"var(--amber)",marginTop:".2rem",opacity:.8}}>Money owed to you</div>
         </div>
       </div>
 
@@ -75,14 +65,14 @@ export default function Expenditures(){
       <div className="tab-group mb-2">
         {["all","expense","lending"].map(t=>(
           <button key={t} className={`tab-item ${tab===t?"active":""}`} onClick={()=>setTab(t)}>
-            {t==="all"?"All":t==="expense"?"💸 Expenses":"🤝 Lending"}
+            {t==="all"?"All Entries":t==="expense"?"💸 Expenses":"🤝 Lending"}
           </button>
         ))}
       </div>
 
       {/* Add form */}
       {showForm&&(
-        <div className="card mb-2" style={{border:"2px solid var(--saffron-pale)",animation:"fadeUp .25s ease"}}>
+        <div className="card mb-2" style={{border:"2px solid var(--saffron-pale)",animation:"fadeUp .22s ease"}}>
           <div className="card-title">➕ New Entry</div>
           <div className="grid-2 mb-1">
             <div><label className="label">Type</label>
@@ -91,17 +81,14 @@ export default function Expenditures(){
                 <option value="lending">🤝 Lending</option>
               </select>
             </div>
-            {form.type==="expense"?(
-              <div><label className="label">Category</label>
+            {form.type==="expense"
+              ?<div><label className="label">Category</label>
                 <select className="input" value={form.category} onChange={e=>setForm(f=>({...f,category:e.target.value}))}>
                   {EXP_CATEGORIES.map(c=><option key={c} value={c} style={{textTransform:"capitalize"}}>{c}</option>)}
-                </select>
-              </div>
-            ):(
-              <div><label className="label">Person / Party Name</label>
-                <input className="input" value={form.party_name} onChange={e=>setForm(f=>({...f,party_name:e.target.value}))} placeholder="Who borrowed?"/>
-              </div>
-            )}
+                </select></div>
+              :<div><label className="label">Person Name</label>
+                <input className="input" value={form.party_name} onChange={e=>setForm(f=>({...f,party_name:e.target.value}))} placeholder="Who borrowed?"/></div>
+            }
           </div>
           <div className="grid-2 mb-1">
             <div><label className="label">Description *</label><input className="input" value={form.description} onChange={e=>setForm(f=>({...f,description:e.target.value}))} placeholder="What is this for?"/></div>
@@ -120,10 +107,10 @@ export default function Expenditures(){
         </div>
       )}
 
-      {/* Outstanding loans — shown prominently if any */}
+      {/* Outstanding loans highlight */}
       {(tab==="all"||tab==="lending")&&outstanding.length>0&&(
-        <div className="card mb-2" style={{border:"2px solid #FCD34D",background:"linear-gradient(135deg,#FFFBEB,#FFF)"}}>
-          <div className="card-title" style={{color:"var(--amber)"}}>⏳ Outstanding — Money Owed to You ({outstanding.length})</div>
+        <div className="card mb-2" style={{border:"2px solid #FCD34D",background:"linear-gradient(135deg,#FFFBEB,#FFFF)"}}>
+          <div className="card-title" style={{color:"var(--amber)"}}>⏳ Outstanding — Not Yet Returned ({outstanding.length})</div>
           <div style={{display:"flex",flexDirection:"column",gap:".5rem"}}>
             {outstanding.map(item=>(
               <div key={item.id} style={{display:"flex",alignItems:"center",gap:"1rem",padding:".7rem 1rem",background:"#FFFBF5",borderRadius:"var(--r-sm)",border:"1px solid #FDE68A"}}>
@@ -140,17 +127,18 @@ export default function Expenditures(){
         </div>
       )}
 
-      {/* Main table */}
+      {/* Main table — hide returned lending entries */}
       <div className="card" style={{padding:0}}>
         {loading?<div className="loader"><div className="spinner"/></div>
-        :items.length===0?<div className="empty"><div className="empty-icon">{tab==="lending"?"🤝":"💸"}</div><p>No entries found.</p></div>
-        :(
+        :items.filter(i=>!(i.type==="lending"&&i.status==="returned")).length===0
+          ?<div className="empty"><div className="empty-icon">{tab==="lending"?"🤝":"💸"}</div><p>No entries found.</p></div>
+          :(
           <div className="table-wrap">
             <table>
               <thead><tr><th>Type</th><th>Description</th><th>Party</th><th>Date</th><th className="text-right">Amount</th><th>Status</th><th>Actions</th></tr></thead>
               <tbody>
-                {items.map(item=>(
-                  <tr key={item.id} style={{opacity:item.type==="lending"&&item.status==="returned"?.65:1}}>
+                {items.filter(i=>!(i.type==="lending"&&i.status==="returned")).map(item=>(
+                  <tr key={item.id}>
                     <td>
                       <span style={{fontSize:".72rem",fontWeight:700,textTransform:"capitalize",padding:".2rem .7rem",borderRadius:"99px",background:item.type==="lending"?"#FFFBEB":"#FFF1F2",color:item.type==="lending"?"var(--amber)":"var(--rose-dk)"}}>
                         {item.type==="lending"?"🤝":"💸"} {item.type}
@@ -165,13 +153,12 @@ export default function Expenditures(){
                       {item.due_date&&item.status==="pending"&&<div style={{fontSize:".68rem",color:"var(--rose-dk)",fontWeight:600}}>Due: {new Date(item.due_date).toLocaleDateString("en-IN")}</div>}
                     </td>
                     <td className="text-muted text-sm">{new Date(item.created_at).toLocaleDateString("en-IN")}</td>
-                    <td className="text-right" style={{fontFamily:"var(--font-display)",fontWeight:700,color:item.type==="lending"?item.status==="returned"?"var(--jade)":"var(--amber)":"var(--rose-dk)"}}>{fmt(item.amount)}</td>
+                    <td className="text-right" style={{fontFamily:"var(--font-display)",fontWeight:700,color:item.type==="lending"?"var(--amber)":"var(--rose-dk)"}}>{fmt(item.amount)}</td>
                     <td>
-                      {item.type==="lending"?(
-                        item.status==="returned"
-                          ?<span className="badge badge-settled">✅ Returned — Settled</span>
-                          :<span className="badge badge-pending">⏳ Pending Return</span>
-                      ):<span style={{fontSize:".72rem",color:"var(--ink-dim)"}}>Expense</span>}
+                      {item.type==="lending"
+                        ?<span className="badge badge-pending">⏳ Outstanding</span>
+                        :<span style={{fontSize:".72rem",color:"var(--ink-dim)"}}>—</span>
+                      }
                     </td>
                     <td>
                       <div className="flex gap-1">

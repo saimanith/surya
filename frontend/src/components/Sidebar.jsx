@@ -1,73 +1,79 @@
 import { NavLink } from "react-router-dom";
 
 const NAV = [
-  { label: "Billing", items: [
-    { to:"/",              icon:"🏠", label:"Dashboard"       },
-    { to:"/billing/new",   icon:"🧾", label:"New Bill"        },
-    { to:"/bills",         icon:"📋", label:"All Bills"       },
+  { label:"Billing", items:[
+    { to:"/",              icon:"🏠", label:"Dashboard"      },
+    { to:"/billing/new",   icon:"🧾", label:"New Bill"       },
+    { to:"/bills",         icon:"📋", label:"All Bills"      },
   ]},
-  { label: "Finance", items: [
-    { to:"/settlement",    icon:"📊", label:"Settlement"      },
-    { to:"/cash",          icon:"💵", label:"Cash Register"   },
+  { label:"Finance", items:[
+    { to:"/settlement",    icon:"📊", label:"Settlement"     },
+    { to:"/cash",          icon:"💵", label:"Cash Register"  },
     { to:"/expenditures",  icon:"💸", label:"Expenditures"   },
   ]},
-  { label: "Stock", items: [
-    { to:"/inventory",     icon:"📦", label:"Inventory"       },
-    { to:"/purchase-orders",icon:"🛒",label:"Purchase Orders" },
-    { to:"/stock-setup",    icon:"⚡",label:"Stock Setup"     },
-    { to:"/catalog",       icon:"🧵", label:"Cloth Catalog"   },
+  { label:"Stock", items:[
+    { to:"/inventory",     icon:"📦", label:"Inventory"      },
+    { to:"/purchase-orders",icon:"🛒",label:"Purchase Orders"},
+    { to:"/catalog",       icon:"🧵", label:"Cloth Catalog"  },
   ]},
-  { label: "People", items: [
-    { to:"/customers",     icon:"👥", label:"Customers"       },
-    { to:"/deleted-bills", icon:"🗄️",  label:"Deleted Bills"  },
+  { label:"People", items:[
+    { to:"/customers",     icon:"👥", label:"Customers"      },
+    { to:"/deleted-bills", icon:"🗄️", label:"Deleted Bills"  },
   ]},
 ];
 
+// Animated falling threads
 function Threads() {
+  const threads = [
+    { left:"12%", dur:"9s",  del:"0s",   h:55, op:.4 },
+    { left:"26%", dur:"12s", del:"1.8s", h:70, op:.3 },
+    { left:"40%", dur:"8s",  del:"0.6s", h:45, op:.35},
+    { left:"55%", dur:"14s", del:"3s",   h:80, op:.25},
+    { left:"68%", dur:"10s", del:"1.2s", h:60, op:.38},
+    { left:"82%", dur:"11s", del:"2.4s", h:50, op:.3 },
+  ];
   return (
-    <div style={{ position:"absolute", inset:0, overflow:"hidden", pointerEvents:"none" }}>
-      {[14,28,42,56,70,84].map((left, i) => (
-        <div key={i} className="thread" style={{
-          left:`${left}%`,
-          height:`${50+i*10}px`,
-          animationDuration:`${8+i*1.5}s`,
-          animationDelay:`${i*1.2}s`,
-          opacity:.12+i*.03,
-        }} />
+    <>
+      {threads.map((t,i)=>(
+        <div key={i} className="sidebar-thread" style={{
+          left:t.left, height:`${t.h}px`,
+          animationDuration:t.dur, animationDelay:t.del, opacity:t.op,
+        }}/>
       ))}
-    </div>
+    </>
   );
 }
 
 export default function Sidebar({ user, onLogout }) {
-  const today = new Date().toLocaleDateString("en-IN", { day:"2-digit", month:"short", year:"numeric" });
+  const today = new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
   return (
     <aside className="sidebar">
-      <Threads />
+      <Threads/>
+
       <div className="sidebar-logo">
-        <div className="logo-row">
+        <div className="logo-mark">
           <div className="logo-orb">🌅</div>
-          <div>
-            <div className="logo-name">SURYA</div>
-          </div>
+          <div className="logo-text">SURYA</div>
         </div>
-        <div className="logo-sub">Cloth Store · Billing System</div>
+        <div className="logo-sub">Cloth Store · Billing</div>
       </div>
+
       <nav className="sidebar-nav">
-        {NAV.map(section => (
+        {NAV.map(section=>(
           <div key={section.label}>
             <div className="nav-section">{section.label}</div>
-            {section.items.map(({ to, icon, label }) => (
-              <NavLink key={to} to={to} end={to==="/"} className={({ isActive }) => `nav-link${isActive?" active":""}`}>
+            {section.items.map(({to,icon,label})=>(
+              <NavLink key={to} to={to} end={to==="/"} className={({isActive})=>`nav-link${isActive?" active":""}`}>
                 <span className="nav-icon">{icon}</span>{label}
               </NavLink>
             ))}
           </div>
         ))}
       </nav>
+
       <div className="sidebar-bottom">
         <div className="sidebar-userbox">
-          <div style={{ fontSize:".58rem", color:"#ffffff25", letterSpacing:".12em", textTransform:"uppercase", marginBottom:".2rem" }}>Logged in as</div>
+          <div style={{fontSize:".58rem",color:"rgba(255,255,255,.2)",letterSpacing:".12em",textTransform:"uppercase",marginBottom:".2rem"}}>Logged in as</div>
           <div className="sidebar-username">👤 {user?.username}</div>
           <div className="sidebar-role">{user?.role}</div>
         </div>

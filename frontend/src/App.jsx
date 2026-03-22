@@ -15,7 +15,6 @@ import DeletedBills from "./pages/DeletedBills";
 import Inventory from "./pages/Inventory";
 import PurchaseOrders from "./pages/PurchaseOrders";
 import CashRegister from "./pages/CashRegister";
-import StockSetup from "./pages/StockSetup";
 import { api } from "./api/client";
 
 const PAGE_TITLES = {
@@ -65,7 +64,6 @@ export default function App() {
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/purchase-orders" element={<PurchaseOrders />} />
           <Route path="/cash" element={<CashRegister />} />
-          <Route path="/stock-setup" element={<StockSetup />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>

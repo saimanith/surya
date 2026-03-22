@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import FabricRollAnimation from "../components/FabricRollAnimation";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/client";
 
@@ -86,9 +85,6 @@ export default function Dashboard() {
     loadWeekData();
   },[]);
 
-  const [showDashAnim,setShowDashAnim]=useState(()=>!sessionStorage.getItem("surya_dash_anim_shown"));
-  const handleDashAnimDone=()=>{ sessionStorage.setItem("surya_dash_anim_shown","1"); setShowDashAnim(false); };
-
   if(loading)return<div className="loader"><div className="spinner"/><span style={{color:"var(--ink-muted)",fontSize:".9rem"}}>Loading…</span></div>;
 
   const stats=[
@@ -118,7 +114,6 @@ export default function Dashboard() {
 
   return (
     <div className="page">
-      {showDashAnim&&<FabricRollAnimation onComplete={handleDashAnimDone}/>}
       {/* Hero */}
       <div className="hero-banner">
         <div style={{position:"relative",zIndex:1}}>

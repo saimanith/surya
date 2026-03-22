@@ -21,7 +21,7 @@ router.get("/", requireAuth, async (req, res) => {
 
 router.post("/", requireAuth, async (req, res) => {
   try {
-    const { supplier_name, cloth_type, meters_ordered, price_per_meter, expected_date, notes } = req.body;
+    const { supplier_name, cloth_type, meters_ordered, price_per_meter, expected_date, notes, order_type, bolt_ref } = req.body;
     if (!cloth_type || !meters_ordered) return res.status(400).json({ success: false, error: "Cloth type and meters required" });
     const now = new Date();
     const id = uuidv4();
