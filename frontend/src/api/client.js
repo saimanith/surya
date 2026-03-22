@@ -53,9 +53,13 @@ export const api = {
   closeDay: (data) => req("POST","/settlement/close",data),
 
   getBolts: (params) => req("GET",`/bolts${params?`?${new URLSearchParams(params)}`:""}`),
+  getBoltRecommendations: () => req("GET","/bolts/recommendations"),
+  addBoltBatch: (data) => req("POST","/bolts/batch",data),
   getBoltSummary: () => req("GET","/bolts/summary"),
   getBolt: (id) => req("GET",`/bolts/${id}`),
+  getBoltByUPC: (upc) => req("GET",`/bolts/upc/${encodeURIComponent(upc)}`),
   addBolt: (data) => req("POST","/bolts",data),
+  addBoltsBulk: (data) => req("POST","/bolts/bulk",data),
   updateBolt: (id,data) => req("PATCH",`/bolts/${id}`,data),
 
   getCash: (date) => req("GET",`/cash${date?`?date=${date}`:""}`),
